@@ -16,18 +16,19 @@ def create_tweet(
     current_user: UserModel = Depends(get_current_user)
 ):
     tweet = tweet_service.create(db, tweet_in=tweet_in, author_id=current_user.id)
-    return tweet_service.get(db, tweet.id)  # Para incluir el autor
+    return tweet_service.get(db, tweet.id, current_user.id)
 
-@router.get("/", response_model=List[Tweet])
+@router.get("/")  # Remover response_model por ahora
 def read_tweets(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
 ):
-    tweets = tweet_service.get_all_public(db, skip=skip, limit=limit)
+    tweets = tweet_service.get_all_public(db, skip=skip, limit=limit, current_user_id=current_user.id)
     return tweets
 
-@router.get("/feed", response_model=List[Tweet])
+@router.get("/feed")  # Remover response_model por ahora
 def read_feed(
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
@@ -37,12 +38,13 @@ def read_feed(
     tweets = tweet_service.get_feed(db, user_id=current_user.id, skip=skip, limit=limit)
     return tweets
 
-@router.get("/{tweet_id}", response_model=Tweet)
+@router.get("/{tweet_id}")  # Remover response_model por ahora
 def read_tweet(
     tweet_id: int,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
 ):
-    tweet = tweet_service.get(db, tweet_id=tweet_id)
+    tweet = tweet_service.get(db, tweet_id=tweet_id, current_user_id=current_user.id)
     if not tweet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -57,7 +59,7 @@ def update_tweet(
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):
-    tweet = tweet_service.get(db, tweet_id=tweet_id)
+    tweet = db.query(Tweet).filter(Tweet.id == tweet_id).first()
     if not tweet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -71,7 +73,7 @@ def update_tweet(
         )
     
     tweet = tweet_service.update(db, db_tweet=tweet, tweet_in=tweet_in)
-    return tweet
+    return tweet_service.get(db, tweet.id, current_user.id)
 
 @router.delete("/{tweet_id}")
 def delete_tweet(
@@ -88,12 +90,13 @@ def delete_tweet(
     
     return {"message": "Tweet deleted successfully"}
 
-@router.get("/user/{username}", response_model=List[Tweet])
+@router.get("/user/{username}")  # Remover response_model por ahora
 def read_user_tweets(
     username: str,
     skip: int = Query(0, ge=0),
     limit: int = Query(20, ge=1, le=100),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
 ):
     from app.services.user import user_service
     
@@ -104,5 +107,5 @@ def read_user_tweets(
             detail="User not found"
         )
     
-    tweets = tweet_service.get_by_user(db, user_id=user.id, skip=skip, limit=limit)
+    tweets = tweet_service.get_by_user(db, user_id=user.id, skip=skip, limit=limit, current_user_id=current_user.id)
     return tweets

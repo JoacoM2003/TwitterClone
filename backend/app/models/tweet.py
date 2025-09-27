@@ -15,7 +15,4 @@ class Tweet(Base):
     # Relaciones
     author = relationship("User", back_populates="tweets")
     likes = relationship("Like", back_populates="tweet")
-
-    @property
-    def likes_count(self):
-        return len(self.likes) if self.likes else 0
+    retweets = relationship("Retweet", back_populates="tweet")

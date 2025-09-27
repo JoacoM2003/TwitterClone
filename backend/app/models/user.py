@@ -21,3 +21,4 @@ class User(Base):
     followers = relationship("Follow", foreign_keys="Follow.followed_id", back_populates="followed")
     following = relationship("Follow", foreign_keys="Follow.follower_id", back_populates="follower")
     likes = relationship("Like", back_populates="user")
+    retweets = relationship("Retweet", back_populates="user")
