@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     project_name: str = "Twitter Clone"
     
     # CORS
-    backend_cors_origins: list = ["http://localhost:3000"]
+    backend_cors_origins: list = ["http://localhost:3000", "*"]
     
     class Config:
         # env_file = ".env"

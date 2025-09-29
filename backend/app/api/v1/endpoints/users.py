@@ -6,6 +6,7 @@ from app.core.dependencies import get_db, get_current_user
 from app.models.user import User as UserModel
 from app.schemas.user import User, UserUpdate, UserPublic
 from app.services.user import user_service
+from app.services.notification import notification_service
 
 router = APIRouter()
 
@@ -34,14 +35,13 @@ def read_user(
             detail="User not found"
         )
     
-    # Agregar contadores
     user.followers_count = user_service.get_followers_count(db, user.id)
     user.following_count = user_service.get_following_count(db, user.id)
     
     return user
 
 @router.post("/{username}/follow")
-def follow_user(
+async def follow_user(
     username: str,
     db: Session = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
@@ -65,6 +65,13 @@ def follow_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Already following this user"
         )
+    
+    # Notificar al usuario seguido
+    await notification_service.notify_new_follower(
+        db,
+        user_to_follow.id,
+        current_user.username
+    )
     
     return {"message": "User followed successfully"}
 

@@ -10,9 +10,11 @@ class Tweet(Base):
     content = Column(Text, nullable=False)
     image_url = Column(String)
     author_id = Column(Integer, ForeignKey("users.id"))
+    reply_to_id = Column(Integer, ForeignKey("tweets.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     
     # Relaciones
     author = relationship("User", back_populates="tweets")
-    likes = relationship("Like", back_populates="tweet")
-    retweets = relationship("Retweet", back_populates="tweet")
+    likes = relationship("Like", back_populates="tweet", cascade="all, delete-orphan")
+    retweets = relationship("Retweet", back_populates="tweet", cascade="all, delete-orphan")
+    reply_to = relationship("Tweet", remote_side=[id], foreign_keys=[reply_to_id], backref="replies")
