@@ -43,6 +43,7 @@ class TweetService:
                 joinedload(Tweet.reply_to).joinedload(Tweet.author)
             )
             .filter(Tweet.author_id == user_id)
+            .filter(Tweet.reply_to_id.is_(None))  # AGREGAR ESTE FILTRO
             .order_by(Tweet.created_at.desc())
             .offset(skip)
             .limit(limit)
@@ -64,6 +65,7 @@ class TweetService:
                 (Tweet.author_id.in_(following_ids)) | 
                 (Tweet.author_id == user_id)
             )
+            .filter(Tweet.reply_to_id.is_(None))  # AGREGAR ESTE FILTRO
             .order_by(Tweet.created_at.desc())
             .offset(skip)
             .limit(limit)
@@ -79,6 +81,7 @@ class TweetService:
                 joinedload(Tweet.author),
                 joinedload(Tweet.reply_to).joinedload(Tweet.author)
             )
+            .filter(Tweet.reply_to_id.is_(None))  # AGREGAR ESTE FILTRO
             .order_by(Tweet.created_at.desc())
             .offset(skip)
             .limit(limit)

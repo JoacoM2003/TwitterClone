@@ -96,3 +96,19 @@ def unfollow_user(
         )
     
     return {"message": "User unfollowed successfully"}
+
+@router.get("/{username}/is-following")
+def check_is_following(
+    username: str,
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    user_to_check = user_service.get_by_username(db, username=username)
+    if not user_to_check:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    is_following = user_service.is_following(db, current_user.id, user_to_check.id)
+    return {"is_following": is_following}
