@@ -11,7 +11,13 @@ from app.services.notification import notification_service
 router = APIRouter()
 
 @router.get("/me", response_model=User)
-def read_user_me(current_user: UserModel = Depends(get_current_user)):
+def read_user_me(
+    db: Session = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
+):
+    from app.services.user import user_service
+    current_user.followers_count = user_service.get_followers_count(db, current_user.id)
+    current_user.following_count = user_service.get_following_count(db, current_user.id)
     return current_user
 
 @router.put("/me", response_model=User)
