@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Text
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.db.base import Base
+from app.models.hashtag import tweet_hashtags
 
 class Tweet(Base):
     __tablename__ = "tweets"
@@ -18,3 +19,5 @@ class Tweet(Base):
     likes = relationship("Like", back_populates="tweet", cascade="all, delete-orphan")
     retweets = relationship("Retweet", back_populates="tweet", cascade="all, delete-orphan")
     reply_to = relationship("Tweet", remote_side=[id], foreign_keys=[reply_to_id], backref="replies")
+    hashtags = relationship("Hashtag", secondary=tweet_hashtags, back_populates="tweets")
+    mentions = relationship("Mention", back_populates="tweet", cascade="all, delete-orphan")

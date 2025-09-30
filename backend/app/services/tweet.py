@@ -7,6 +7,8 @@ from app.models.follow import Follow
 from app.schemas.tweet import TweetCreate, TweetUpdate
 
 class TweetService:
+# En el método create, agregar después de crear el tweet:
+
     def create(self, db: Session, tweet_in: TweetCreate, author_id: int) -> Tweet:
         # Verificar que reply_to_id existe si se proporciona
         if tweet_in.reply_to_id:
@@ -18,11 +20,16 @@ class TweetService:
             content=tweet_in.content,
             image_url=tweet_in.image_url,
             author_id=author_id,
-            reply_to_id=tweet_in.reply_to_id  # NUEVO
+            reply_to_id=tweet_in.reply_to_id
         )
         db.add(db_tweet)
         db.commit()
         db.refresh(db_tweet)
+        
+        from app.services.hashtag import hashtag_service
+        hashtag_service.process_tweet_hashtags(db, db_tweet, tweet_in.content)
+        hashtag_service.process_tweet_mentions(db, db_tweet, tweet_in.content)
+        
         return db_tweet
     
     def get(self, db: Session, tweet_id: int, current_user_id: Optional[int] = None):

@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.api import api_router
 from app.core.config import settings
 from app.db.database import engine
-from app.models import user, tweet, follow, like, retweet
+from app.models import user, tweet, follow, like, retweet, hashtag, mention
 
 # Crear tablas
 user.Base.metadata.create_all(bind=engine)
@@ -11,6 +11,8 @@ tweet.Base.metadata.create_all(bind=engine)
 follow.Base.metadata.create_all(bind=engine)
 like.Base.metadata.create_all(bind=engine)
 retweet.Base.metadata.create_all(bind=engine)
+hashtag.Base.metadata.create_all(bind=engine)
+mention.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title=settings.project_name,
