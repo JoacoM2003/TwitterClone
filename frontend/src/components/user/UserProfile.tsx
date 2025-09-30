@@ -5,6 +5,7 @@ import { userService } from '../../services/userService';
 import { tweetService } from '../../services/tweetService';
 import { TweetList } from '../tweet/TweetList';
 import { useAuth } from '../../contexts/AuthContext';
+import { EditProfileModal } from './EditProfileModal';
 
 interface UserProfileProps {
   username: string;
@@ -16,6 +17,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
   const [loading, setLoading] = useState(true);
   const [isFollowing, setIsFollowing] = useState(false);
   const [followLoading, setFollowLoading] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { user: currentUser } = useAuth();
   const isOwnProfile = currentUser?.username === username;
 
@@ -32,7 +34,6 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
       setUser(userData);
       setTweets(userTweets);
 
-      // Verificar si ya lo estamos siguiendo
       if (!isOwnProfile) {
         const following = await userService.isFollowing(username);
         setIsFollowing(following);
@@ -78,19 +79,27 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
 
   return (
     <div>
-      <div className="border-b border-gray-200 p-6">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-4">
-            <div className="w-20 h-20 bg-twitter-blue rounded-full flex items-center justify-center text-white text-3xl font-bold">
-              {user.username[0].toUpperCase()}
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold">{user.full_name || user.username}</h2>
-              <p className="text-gray-500">@{user.username}</p>
-            </div>
+      {/* Banner y foto de perfil */}
+      <div className="relative">
+        <div className="h-48 bg-gradient-to-r from-twitter-blue to-blue-400"></div>
+        <div className="absolute -bottom-16 left-4">
+          <div className="w-32 h-32 bg-twitter-blue rounded-full flex items-center justify-center text-white text-4xl font-bold border-4 border-white">
+            {user.username[0].toUpperCase()}
           </div>
+        </div>
+      </div>
 
-          {!isOwnProfile && (
+      {/* Info del perfil */}
+      <div className="border-b border-gray-200 px-4 pt-20 pb-4">
+        <div className="flex justify-end mb-4">
+          {isOwnProfile ? (
+            <button
+              onClick={() => setIsEditModalOpen(true)}
+              className="btn-outline"
+            >
+              Editar perfil
+            </button>
+          ) : (
             <button
               onClick={handleFollow}
               disabled={followLoading}
@@ -105,7 +114,14 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
           )}
         </div>
 
-        {user.bio && <p className="mt-4 text-gray-700">{user.bio}</p>}
+        <div>
+          <h2 className="text-2xl font-bold">{user.full_name || user.username}</h2>
+          <p className="text-gray-500">@{user.username}</p>
+        </div>
+
+        {user.bio && (
+          <p className="mt-3 text-gray-700">{user.bio}</p>
+        )}
 
         <div className="flex space-x-6 mt-4 text-sm">
           <div>
@@ -119,11 +135,22 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
         </div>
       </div>
 
+      {/* Tweets */}
       <div className="border-b border-gray-200 p-4">
         <h3 className="font-bold text-lg">Tweets</h3>
       </div>
 
       <TweetList tweets={tweets} onUpdate={loadProfile} />
+
+      {/* Modal de edición */}
+      {isOwnProfile && currentUser && (
+        <EditProfileModal
+          user={currentUser}
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          onUpdate={loadProfile}
+        />
+      )}
     </div>
   );
 };

@@ -20,7 +20,6 @@ export const userService = {
     await axios.delete(`/users/${username}/follow`);
   },
 
-  // NUEVO MÉTODO
   isFollowing: async (username: string): Promise<boolean> => {
     const response = await axios.get(`/users/${username}/is-following`);
     return response.data.is_following;

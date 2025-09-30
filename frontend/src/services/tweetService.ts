@@ -52,7 +52,11 @@ export const tweetService = {
   },
 
   retweet: async (tweetId: number, comment?: string): Promise<void> => {
-    await axios.post(`/retweets/${tweetId}`, comment ? { comment } : {});
+    if (comment) {
+      await axios.post(`/retweets/${tweetId}`, { comment });
+    } else {
+      await axios.post(`/retweets/${tweetId}`);
+    }
   },
 
   unretweet: async (tweetId: number): Promise<void> => {

@@ -9,12 +9,57 @@ interface TweetCardProps {
   showReplyIndicator?: boolean;
 }
 
+// Función helper para formatear contenido con hashtags y menciones clickeables
+const formatTweetContent = (content: string, navigate: any) => {
+  const parts = content.split(/(\s+)/);
+  
+  return parts.map((part, index) => {
+    // Hashtags
+    if (part.startsWith('#')) {
+      return (
+        <span
+          key={index}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/search?q=${encodeURIComponent(part)}`);
+          }}
+          className="text-twitter-blue hover:underline cursor-pointer font-medium"
+        >
+          {part}
+        </span>
+      );
+    }
+    
+    // Menciones
+    if (part.startsWith('@')) {
+      const username = part.substring(1).replace(/[^a-zA-Z0-9_-]/g, '');
+      return (
+        <span
+          key={index}
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/profile/${username}`);
+          }}
+          className="text-twitter-blue hover:underline cursor-pointer font-medium"
+        >
+          {part}
+        </span>
+      );
+    }
+    
+    // Texto normal
+    return <span key={index}>{part}</span>;
+  });
+};
+
 export const TweetCard: React.FC<TweetCardProps> = ({ tweet, onUpdate, showReplyIndicator = false }) => {
   const navigate = useNavigate();
   const [isLiked, setIsLiked] = React.useState(tweet.is_liked_by_user);
   const [likesCount, setLikesCount] = React.useState(tweet.likes_count);
   const [isRetweeted, setIsRetweeted] = React.useState(tweet.is_retweeted_by_user);
   const [retweetsCount, setRetweetsCount] = React.useState(tweet.retweets_count);
+  const [retweetLoading, setRetweetLoading] = React.useState(false);
+  const [retweetMessage, setRetweetMessage] = React.useState<string | null>(null);
 
   const handleLike = async (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -34,17 +79,26 @@ export const TweetCard: React.FC<TweetCardProps> = ({ tweet, onUpdate, showReply
 
   const handleRetweet = async (e: React.MouseEvent) => {
     e.stopPropagation();
+    setRetweetLoading(true);
+    setRetweetMessage(null);
     try {
       if (isRetweeted) {
         await tweetService.unretweet(tweet.id);
         setRetweetsCount(retweetsCount - 1);
+        setRetweetMessage('Retweet eliminado');
       } else {
         await tweetService.retweet(tweet.id);
         setRetweetsCount(retweetsCount + 1);
+        setRetweetMessage('Retweeteado');
       }
       setIsRetweeted(!isRetweeted);
+      if (onUpdate) onUpdate();
     } catch (error) {
+      setRetweetMessage('Error al retweetear');
       console.error('Error toggling retweet:', error);
+    } finally {
+      setRetweetLoading(false);
+      setTimeout(() => setRetweetMessage(null), 2000);
     }
   };
 
@@ -91,7 +145,10 @@ export const TweetCard: React.FC<TweetCardProps> = ({ tweet, onUpdate, showReply
             </span>
           </div>
 
-          <p className="mt-2 text-gray-900 whitespace-pre-wrap">{tweet.content}</p>
+          {/* Contenido del tweet con hashtags y menciones clickeables */}
+          <p className="mt-2 text-gray-900 whitespace-pre-wrap">
+            {formatTweetContent(tweet.content, navigate)}
+          </p>
 
           <div className="flex items-center space-x-8 mt-3 text-gray-500">
             <button
@@ -105,15 +162,27 @@ export const TweetCard: React.FC<TweetCardProps> = ({ tweet, onUpdate, showReply
               <span>{tweet.replies_count}</span>
             </button>
 
-            <button
-              onClick={handleRetweet}
-              className={`flex items-center space-x-2 transition-colors ${
-                isRetweeted ? 'text-green-500' : 'hover:text-green-500'
-              }`}
-            >
-              <span>🔄</span>
-              <span>{retweetsCount}</span>
-            </button>
+            <div className="relative">
+              <button
+                onClick={handleRetweet}
+                disabled={retweetLoading}
+                className={`flex items-center space-x-2 transition-colors ${
+                  isRetweeted ? 'text-green-500' : 'hover:text-green-500'
+                } ${retweetLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              >
+                {retweetLoading ? (
+                  <span className="animate-spin h-5 w-5 border-b-2 border-green-500 rounded-full"></span>
+                ) : (
+                  <span>🔄</span>
+                )}
+                <span>{retweetsCount}</span>
+              </button>
+              {retweetMessage && (
+                <span className="absolute left-0 top-8 bg-green-600 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
+                  {retweetMessage}
+                </span>
+              )}
+            </div>
 
             <button
               onClick={handleLike}

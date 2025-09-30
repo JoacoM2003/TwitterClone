@@ -6,6 +6,7 @@ import { Register } from './pages/Register';
 import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { TweetDetail } from './pages/TweetDetail';
+import { Search } from './pages/Search';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -49,6 +50,14 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <TweetDetail />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <PrivateRoute>
+                <Search />
               </PrivateRoute>
             }
           />
