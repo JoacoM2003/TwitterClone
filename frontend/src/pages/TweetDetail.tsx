@@ -135,6 +135,10 @@ export const TweetDetail: React.FC = () => {
               <span className="text-gray-500">Respuestas</span>
             </div>
             <div className="flex items-center space-x-2">
+              <span className="font-bold">{tweet.retweets_count}</span>
+              <span className="text-gray-500">Retweets</span>
+            </div>
+            <div className="flex items-center space-x-2">
               <span className="font-bold">{tweet.likes_count}</span>
               <span className="text-gray-500">Me gusta</span>
             </div>
@@ -143,9 +147,11 @@ export const TweetDetail: React.FC = () => {
           <div className="flex items-center justify-around mt-4 pt-4 border-t border-gray-200">
             <button className="flex items-center space-x-2 text-gray-500 hover:text-twitter-blue transition-colors p-2">
               <span className="text-xl">💬</span>
+              <span className="font-bold">{tweet.replies_count}</span>
             </button>
             <button className="flex items-center space-x-2 text-gray-500 hover:text-green-500 transition-colors p-2">
               <span className="text-xl">🔄</span>
+              <span className="font-bold">{tweet.retweets_count}</span>
             </button>
             <button
               onClick={() => handleLike(tweet.id, tweet.is_liked_by_user)}
@@ -154,6 +160,7 @@ export const TweetDetail: React.FC = () => {
               }`}
             >
               <span className="text-xl">{tweet.is_liked_by_user ? '❤️' : '🤍'}</span>
+              <span className="font-bold">{tweet.likes_count}</span>
             </button>
           </div>
         </div>

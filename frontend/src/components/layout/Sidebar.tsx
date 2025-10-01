@@ -9,6 +9,7 @@ export const Sidebar: React.FC = () => {
 
   const menuItems = [
     { name: 'Inicio', path: '/', icon: '🏠' },
+    { name: 'Mensajes', path: '/messages', icon: '✉️' }, // NUEVO
     { name: 'Perfil', path: `/profile/${user?.username}`, icon: '👤' },
   ];
 

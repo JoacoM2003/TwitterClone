@@ -17,21 +17,34 @@ export const LoginForm: React.FC = () => {
 
     try {
       await login(username, password);
+      // Solo navegar si el login fue exitoso
       navigate('/');
     } catch (err: any) {
-      setError(err.response?.data?.detail || 'Error al iniciar sesión');
+      // Mantener el error visible
+      const errorMessage = err.response?.data?.detail || 'Error al iniciar sesión';
+      setError(errorMessage);
+      console.error('Login error:', err);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6">
-      <h2 className="text-3xl font-bold mb-6 text-center">Iniciar Sesión</h2>
+    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
+      <div className="text-center mb-6">
+        <h1 className="text-3xl font-bold text-twitter-blue mb-2">🐦 Twitter Clone</h1>
+        <h2 className="text-2xl font-bold">Iniciar Sesión</h2>
+      </div>
       
       {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          {error}
+        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 relative">
+          <span className="block sm:inline">{error}</span>
+          <button
+            onClick={() => setError('')}
+            className="absolute top-0 right-0 px-4 py-3"
+          >
+            <span className="text-xl">&times;</span>
+          </button>
         </div>
       )}
 
@@ -43,7 +56,9 @@ export const LoginForm: React.FC = () => {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             className="input-field"
+            placeholder="usuario123"
             required
+            autoFocus
           />
         </div>
 
@@ -54,6 +69,7 @@ export const LoginForm: React.FC = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="input-field"
+            placeholder="••••••••"
             required
           />
         </div>
@@ -61,15 +77,22 @@ export const LoginForm: React.FC = () => {
         <button
           type="submit"
           disabled={loading}
-          className="btn-primary w-full disabled:opacity-50"
+          className="btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'Cargando...' : 'Iniciar Sesión'}
+          {loading ? (
+            <span className="flex items-center justify-center">
+              <span className="animate-spin mr-2">⏳</span>
+              Iniciando sesión...
+            </span>
+          ) : (
+            'Iniciar Sesión'
+          )}
         </button>
       </form>
 
-      <p className="text-center mt-4">
+      <p className="text-center mt-6 text-gray-600">
         ¿No tienes cuenta?{' '}
-        <a href="/register" className="text-twitter-blue hover:underline">
+        <a href="/register" className="text-twitter-blue hover:underline font-medium">
           Regístrate
         </a>
       </p>

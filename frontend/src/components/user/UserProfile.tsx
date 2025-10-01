@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { UserPublic } from '../../types/user';
 import { Tweet } from '../../types/tweet';
 import { userService } from '../../services/userService';
@@ -19,6 +20,7 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
   const [followLoading, setFollowLoading] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const { user: currentUser } = useAuth();
+  const navigate = useNavigate();
   const isOwnProfile = currentUser?.username === username;
 
   useEffect(() => {
@@ -100,17 +102,26 @@ export const UserProfile: React.FC<UserProfileProps> = ({ username }) => {
               Editar perfil
             </button>
           ) : (
-            <button
-              onClick={handleFollow}
-              disabled={followLoading}
-              className={`px-6 py-2 rounded-full font-bold transition-colors disabled:opacity-50 ${
-                isFollowing
-                  ? 'bg-white border-2 border-red-500 text-red-500 hover:bg-red-50'
-                  : 'btn-primary'
-              }`}
-            >
-              {followLoading ? 'Cargando...' : isFollowing ? 'Dejar de seguir' : 'Seguir'}
-            </button>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => navigate(`/messages/${username}`)}
+                className="btn-outline flex items-center space-x-2"
+              >
+                <span>✉️</span>
+                <span>Mensaje</span>
+              </button>
+              <button
+                onClick={handleFollow}
+                disabled={followLoading}
+                className={`px-6 py-2 rounded-full font-bold transition-colors disabled:opacity-50 ${
+                  isFollowing
+                    ? 'bg-white border-2 border-red-500 text-red-500 hover:bg-red-50'
+                    : 'btn-primary'
+                }`}
+              >
+                {followLoading ? 'Cargando...' : isFollowing ? 'Dejar de seguir' : 'Seguir'}
+              </button>
+            </div>
           )}
         </div>
 

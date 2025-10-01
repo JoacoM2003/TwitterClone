@@ -26,6 +26,8 @@ export const NotificationPanel: React.FC = () => {
         return `💬 ${notification.data?.message}`;
       case 'new_follower':
         return `👤 ${notification.data?.message}`;
+      case 'new_message': // NUEVO
+        return `✉️ Nuevo mensaje de @${notification.data?.sender_username}`;
       default:
         return notification.message || 'Nueva notificación';
     }

@@ -7,6 +7,7 @@ import { Home } from './pages/Home';
 import { Profile } from './pages/Profile';
 import { TweetDetail } from './pages/TweetDetail';
 import { Search } from './pages/Search';
+import { Messages } from './pages/Messages';
 
 const PrivateRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, loading } = useAuth();
@@ -58,6 +59,22 @@ const App: React.FC = () => {
             element={
               <PrivateRoute>
                 <Search />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/messages"
+            element={
+              <PrivateRoute>
+                <Messages />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/messages/:username"
+            element={
+              <PrivateRoute>
+                <Messages />
               </PrivateRoute>
             }
           />
