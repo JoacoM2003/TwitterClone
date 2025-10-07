@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from app.api.v1.endpoints import auth, users, tweets, likes, retweets, websocket, search, trending, messages
+from app.api.v1.endpoints import auth, users, tweets, likes, retweets, websocket, search, trending, messages, notifications
 
 api_router = APIRouter()
 
@@ -12,3 +12,4 @@ api_router.include_router(websocket.router, prefix="/ws", tags=["websocket"])
 api_router.include_router(search.router, prefix="/search", tags=["searchs"])
 api_router.include_router(trending.router, prefix="/trending", tags=["trending"])
 api_router.include_router(messages.router, prefix="/messages", tags=["messages"])
+api_router.include_router(notifications.router, prefix="/notifications", tags=["notifications"])

@@ -9,6 +9,7 @@ from app.schemas.like import Like, LikeWithUser, LikeWithTweet
 from app.schemas.user import UserPublic
 from app.services.like import like_service
 from app.services.notification import notification_service
+from app.services.notification_ws import notification_service_ws
 
 router = APIRouter()
 
@@ -33,10 +34,20 @@ async def like_tweet(
                 detail="Tweet already liked"
             )
     
-    # Notificar al autor del tweet
     tweet = db.query(TweetModel).filter(TweetModel.id == tweet_id).first()
     if tweet and tweet.author_id != current_user.id:
-        await notification_service.notify_new_like(
+        # Crear notificación persistente
+        notification_service.create_notification(
+            db,
+            user_id=tweet.author_id,
+            type="new_like",
+            message=f"@{current_user.username} le gustó tu tweet",
+            related_id=tweet_id,
+            related_username=current_user.username
+        )
+        
+        # Enviar por WebSocket
+        await notification_service_ws.notify_new_like(
             db,
             tweet_id,
             tweet.author_id,
