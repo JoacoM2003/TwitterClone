@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api/v1';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api/v1';
+
+console.log('🌐 API URL:', API_URL);
 
 const axiosInstance = axios.create({
   baseURL: API_URL,
@@ -9,7 +11,6 @@ const axiosInstance = axios.create({
   },
 });
 
-// Interceptor para agregar token a todas las peticiones
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -23,7 +24,6 @@ axiosInstance.interceptors.request.use(
   }
 );
 
-// Interceptor para manejar errores
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
