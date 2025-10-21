@@ -8,6 +8,8 @@ from pydantic import Field
 
 # load_dotenv()
 
+import os
+print("Render DATABASE_URL:", os.getenv("DATABASE_URL"))
 
 
 class Settings(BaseSettings):
